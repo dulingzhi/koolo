@@ -1,10 +1,7 @@
 package koolo
 
 import (
-	"bytes"
 	"context"
-	"github.com/otiai10/gosseract/v2"
-	"image/png"
 	"time"
 )
 
@@ -53,15 +50,5 @@ func (hm HealthManager) handleHealthAndMana() {
 }
 
 func (hm HealthManager) getStatus() Status {
-	img := hm.display.Capture()
-	buf := new(bytes.Buffer)
-	err := png.Encode(buf, img)
-	if err != nil {
-	}
 
-	client := gosseract.NewClient()
-	defer client.Close()
-	err = client.SetImageFromBytes(buf.Bytes())
-
-	return Status{}
 }
