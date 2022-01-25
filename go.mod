@@ -3,6 +3,7 @@ module github.com/hectorgimenez/koolo
 go 1.18
 
 require (
+	github.com/ghostiam/binstruct v1.2.1
 	github.com/go-vgo/robotgo v0.100.10
 	github.com/winlabs/gowin32 v0.0.0-20210302152218-c9e40aa88058
 	go.uber.org/zap v1.20.0

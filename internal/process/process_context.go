@@ -1,7 +1,9 @@
 package process
 
 import (
+	"encoding/binary"
 	"fmt"
+	"github.com/ghostiam/binstruct"
 	"github.com/winlabs/gowin32"
 	"golang.org/x/sys/windows"
 	"time"
@@ -89,4 +91,48 @@ func (c Context) ReadBytesFromMemory(baseAddress uintptr, size uint) []byte {
 	}
 
 	return data
+}
+
+func (c Context) ReadBytesFromMemoryTimes(baseAddress uintptr, size uint, count int) []byte {
+	var data []byte
+	for i := 0; i < count; i++ {
+		address := baseAddress + uintptr(int(size)*i)
+		bytes := c.ReadBytesFromMemory(address, size)
+		data = append(data, bytes...)
+	}
+
+	return data
+}
+
+func (c Context) GetPlayer() {
+	ht := c.GetUnitHashTable(0)
+
+	for _, ut := range ht.Units {
+		u := UnitAny{}
+		data := c.ReadBytesFromMemory(uintptr(ut), u.Size())
+		err := c.bytesToStruct(data, &u)
+		fmt.Println(err)
+		gu := u.ToUnit(c)
+		fmt.Println(gu)
+	}
+}
+
+func (c Context) GetUnitHashTable(offset int) UnitHashTable {
+	unitTableOffset := c.GetUnitHashtableOffset()
+
+	data := c.ReadBytesFromMemory(unitTableOffset, uint(unsafe.Sizeof(UnitHashTable{})))
+	ht := UnitHashTable{}
+	err := c.bytesToStruct(data, &ht)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return ht
+}
+
+func (c Context) bytesToStruct(bytes []byte, v interface{}) error {
+	r := binstruct.NewReaderFromBytes(bytes, binary.LittleEndian, true)
+	d := binstruct.NewDecoder(r, binary.LittleEndian)
+
+	return d.Decode(v)
 }
