@@ -1,15 +1,15 @@
-package action
+package builder
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/hid"
 	"github.com/hectorgimenez/koolo/internal/pather"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"time"
 )
 
-func (b Builder) RecoverCorpse() *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) RecoverCorpse() *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		if data.Corpse.Found {
 			b.logger.Info("Corpse found, let's recover our stuff...")
 			steps = append(steps,
@@ -30,5 +30,5 @@ func (b Builder) RecoverCorpse() *BasicAction {
 		}
 
 		return
-	}, Resettable())
+	}, step.Resettable())
 }

@@ -1,16 +1,16 @@
-package action
+package builder
 
 import (
 	"fmt"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"github.com/hectorgimenez/koolo/internal/town"
 )
 
-func (b Builder) Repair() *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) Repair() step.Runner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		durabilityPct := float32(data.PlayerUnit.Stats[game.StatDurability]) / float32(data.PlayerUnit.Stats[game.StatMaxDurability])
 		if durabilityPct < 0.80 {
 			b.logger.Info(fmt.Sprintf("Repairing, current durability: %0.2f is under 0.80", durabilityPct))
@@ -32,5 +32,5 @@ func (b Builder) Repair() *BasicAction {
 		}
 
 		return
-	}, Resettable(), CanBeSkipped())
+	}, step.Resettable(), step.CanBeSkipped())
 }

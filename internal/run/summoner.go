@@ -1,9 +1,8 @@
 package run
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
+	"github.com/hectorgimenez/koolo/internal/step"
 )
 
 type Summoner struct {
@@ -14,7 +13,7 @@ func (s Summoner) Name() string {
 	return "Summoner"
 }
 
-func (s Summoner) BuildActions() (actions []action.Action) {
+func (s Summoner) BuildActions() (actions []step.Runner) {
 	// Moving to starting point (Arcane Sanctuary)
 	actions = append(actions, s.builder.WayPoint(game.AreaArcaneSanctuary))
 
@@ -22,7 +21,7 @@ func (s Summoner) BuildActions() (actions []action.Action) {
 	actions = append(actions, s.char.Buff())
 
 	// Travel to boss position
-	actions = append(actions, action.BuildOnRuntime(func(data game.Data) []step.Step {
+	actions = append(actions, step.NewFixedStepsRunner(func(data game.Data) []step.Step {
 		npc, found := data.NPCs.FindOne(game.Summoner)
 		if !found {
 			return nil
@@ -31,7 +30,7 @@ func (s Summoner) BuildActions() (actions []action.Action) {
 		return []step.Step{
 			step.MoveTo(npc.Positions[0].X, npc.Positions[0].Y, true),
 		}
-	}, action.CanBeSkipped()))
+	}, step.CanBeSkipped()))
 
 	// Kill Summoner
 	actions = append(actions, s.char.KillSummoner())

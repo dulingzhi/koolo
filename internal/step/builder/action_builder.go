@@ -1,4 +1,4 @@
-package action
+package builder
 
 import (
 	"github.com/hectorgimenez/koolo/internal/health"

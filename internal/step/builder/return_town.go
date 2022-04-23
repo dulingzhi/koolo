@@ -1,16 +1,16 @@
-package action
+package builder
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"time"
 )
 
-func (b Builder) ReturnTown() *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) ReturnTown() *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		if data.Area.IsTown() {
 			return
 		}
@@ -46,5 +46,5 @@ func (b Builder) ReturnTown() *BasicAction {
 			}),
 		)
 		return
-	}, Resettable())
+	}, step.Resettable())
 }

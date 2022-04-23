@@ -1,16 +1,16 @@
-package action
+package builder
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"github.com/hectorgimenez/koolo/internal/town"
 )
 
-func (b Builder) IdentifyAll(skipIdentify bool) *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) IdentifyAll(skipIdentify bool) *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		items := b.itemsToIdentify(data)
 
 		if len(items) == 0 || skipIdentify {
@@ -46,7 +46,7 @@ func (b Builder) IdentifyAll(skipIdentify bool) *BasicAction {
 		)
 
 		return
-	}, Resettable(), CanBeSkipped())
+	}, step.Resettable(), step.CanBeSkipped())
 }
 
 func (b Builder) itemsToIdentify(data game.Data) (items []game.Item) {

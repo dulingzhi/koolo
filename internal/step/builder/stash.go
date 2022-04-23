@@ -1,13 +1,13 @@
-package action
+package builder
 
 import (
 	"fmt"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
 	"github.com/hectorgimenez/koolo/internal/stats"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"github.com/hectorgimenez/koolo/internal/town"
 )
 
@@ -17,8 +17,8 @@ const (
 	stashGoldBtnY      = 1.357
 )
 
-func (b Builder) Stash(forceStash bool) *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) Stash(forceStash bool) *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		if !b.isStashingRequired(data, forceStash) {
 			return
 		}
@@ -38,7 +38,7 @@ func (b Builder) Stash(forceStash bool) *BasicAction {
 		)
 
 		return
-	}, Resettable(), CanBeSkipped())
+	}, step.Resettable(), step.CanBeSkipped())
 }
 
 func (b Builder) orderInventoryPotions(data game.Data) {

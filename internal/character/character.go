@@ -2,25 +2,25 @@ package character
 
 import (
 	"fmt"
-	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"strings"
 )
 
 type Character interface {
-	Buff() *action.BasicAction
-	KillCountess() *action.BasicAction
-	KillAndariel() *action.BasicAction
-	KillSummoner() *action.BasicAction
-	KillMephisto() *action.BasicAction
-	KillPindle() *action.BasicAction
-	KillNihlathak() *action.BasicAction
-	KillCouncil() *action.BasicAction
-	ClearAncientTunnels() *action.BasicAction
+	Buff() *step.FixedStepsRunner
+	KillCountess() *step.FixedStepsRunner
+	KillAndariel() *step.FixedStepsRunner
+	KillSummoner() *step.FixedStepsRunner
+	KillMephisto() *step.FixedStepsRunner
+	KillPindle() *step.FixedStepsRunner
+	KillNihlathak() *step.FixedStepsRunner
+	KillCouncil() *step.RuntimeBuildingRunner
+	ClearAncientTunnels() *step.FixedStepsRunner
+	ClearTrashInArea(distanceFromPlayer int) *step.RuntimeBuildingRunner
 }
 
 func BuildCharacter() (Character, error) {

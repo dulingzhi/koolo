@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/hectorgimenez/koolo/internal/action"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/health"
 	"github.com/hectorgimenez/koolo/internal/run"
 	"github.com/hectorgimenez/koolo/internal/stats"
+	"github.com/hectorgimenez/koolo/internal/step"
+	"github.com/hectorgimenez/koolo/internal/step/builder"
 	"go.uber.org/zap"
 	"time"
 )
@@ -18,13 +19,13 @@ import (
 type Bot struct {
 	logger *zap.Logger
 	hm     health.Manager
-	ab     action.Builder
+	ab     builder.Builder
 }
 
 func NewBot(
 	logger *zap.Logger,
 	hm health.Manager,
-	ab action.Builder,
+	ab builder.Builder,
 ) Bot {
 	return Bot{
 		logger: logger,
@@ -41,7 +42,7 @@ func (b *Bot) Run(ctx context.Context, firstRun bool, runs []run.Run) error {
 		runStart := time.Now()
 		b.logger.Info(fmt.Sprintf("Running: %s", r.Name()))
 
-		actions := []action.Action{
+		actions := []step.Runner{
 			b.ab.RecoverCorpse(),
 			b.ab.IdentifyAll(firstRun),
 			b.ab.Stash(firstRun),
@@ -79,8 +80,8 @@ func (b *Bot) Run(ctx context.Context, firstRun bool, runs []run.Run) error {
 				}
 
 				for k, act := range actions {
-					err := act.NextStep(d)
-					if errors.Is(err, action.ErrNoMoreSteps) {
+					err := act.Next(d)
+					if errors.Is(err, step.ErrNoMoreSteps) {
 						if len(actions)-1 == k {
 							stats.FinishCurrentRun(stats.EventKill)
 							b.logger.Info(fmt.Sprintf("Run %s finished, length: %0.2fs", r.Name(), time.Since(runStart).Seconds()))
@@ -88,13 +89,13 @@ func (b *Bot) Run(ctx context.Context, firstRun bool, runs []run.Run) error {
 						}
 						continue
 					}
-					if errors.Is(err, action.ErrWillBeRetried) {
+					if errors.Is(err, step.ErrWillBeRetried) {
 						b.logger.Warn("error occurred, will be retried", zap.Error(err))
 						break
 					}
-					if errors.Is(err, action.ErrCanBeSkipped) {
-						stats.Events <- stats.EventWithScreenshot(fmt.Sprintf("error occurred on action that can be skipped, game will continue: %s", err.Error()))
-						b.logger.Warn("error occurred on action that can be skipped, game will continue", zap.Error(err))
+					if errors.Is(err, step.ErrCanBeSkipped) {
+						stats.Events <- stats.EventWithScreenshot(fmt.Sprintf("error occurred on builder that can be skipped, game will continue: %s", err.Error()))
+						b.logger.Warn("error occurred on builder that can be skipped, game will continue", zap.Error(err))
 						act.Skip()
 						break
 					}

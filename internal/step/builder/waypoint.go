@@ -1,10 +1,10 @@
-package action
+package builder
 
 import (
 	"errors"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/hid"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"time"
 )
 
@@ -17,7 +17,7 @@ const (
 	wpAreaBtnHeight = 49
 )
 
-func (b Builder) WayPoint(area game.Area) *BasicAction {
+func (b Builder) WayPoint(area game.Area) *step.FixedStepsRunner {
 	allowedAreas := map[game.Area][2]int{
 		game.AreaBlackMarsh:          {1, 5},
 		game.AreaCatacombsLevel2:     {1, 9},
@@ -29,7 +29,7 @@ func (b Builder) WayPoint(area game.Area) *BasicAction {
 		game.AreaTravincal:           {3, 8},
 	}
 
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		// We don't need to move
 		if data.Area == area {
 			return
@@ -77,5 +77,5 @@ func (b Builder) WayPoint(area game.Area) *BasicAction {
 		}
 
 		return
-	}, Resettable())
+	}, step.Resettable())
 }

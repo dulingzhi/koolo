@@ -1,9 +1,8 @@
 package run
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
+	"github.com/hectorgimenez/koolo/internal/step"
 )
 
 type Nihlathak struct {
@@ -14,7 +13,7 @@ func (a Nihlathak) Name() string {
 	return "Nihlathak"
 }
 
-func (a Nihlathak) BuildActions() (actions []action.Action) {
+func (a Nihlathak) BuildActions() (actions []step.Runner) {
 	// Moving to starting point (Halls of Pain)
 	actions = append(actions, a.builder.WayPoint(game.AreaHallsOfPain))
 
@@ -22,14 +21,14 @@ func (a Nihlathak) BuildActions() (actions []action.Action) {
 	actions = append(actions, a.char.Buff())
 
 	// Travel to boss position
-	actions = append(actions, action.BuildOnRuntime(func(data game.Data) []step.Step {
+	actions = append(actions, step.NewFixedStepsRunner(func(data game.Data) []step.Step {
 		return []step.Step{
 			step.MoveToLevel(game.AreaHallsOfVaught),
 		}
 	}))
 
 	// Move to Nilhatak
-	actions = append(actions, action.BuildOnRuntime(func(data game.Data) []step.Step {
+	actions = append(actions, step.NewFixedStepsRunner(func(data game.Data) []step.Step {
 		for _, n := range data.PointsOfInterest {
 			if n.Name == a.Name() {
 				return []step.Step{step.MoveTo(n.Position.X, n.Position.Y, true)}

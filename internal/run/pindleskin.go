@@ -1,9 +1,8 @@
 package run
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
+	"github.com/hectorgimenez/koolo/internal/step"
 )
 
 const (
@@ -22,12 +21,12 @@ func (p Pindleskin) Name() string {
 	return "Pindleskin"
 }
 
-func (p Pindleskin) BuildActions() (actions []action.Action) {
+func (p Pindleskin) BuildActions() (actions []step.Runner) {
 	// Move to Act 5
 	actions = append(actions, p.builder.WayPoint(game.AreaHarrogath))
 
 	// Moving to starting point
-	actions = append(actions, action.BuildOnRuntime(func(data game.Data) []step.Step {
+	actions = append(actions, step.NewFixedStepsRunner(func(data game.Data) []step.Step {
 		return []step.Step{
 			step.MoveTo(fixedPlaceNearRedPortalX, fixedPlaceNearRedPortalY, false),
 			step.InteractObject("PermanentTownPortal", func(data game.Data) bool {
@@ -40,7 +39,7 @@ func (p Pindleskin) BuildActions() (actions []action.Action) {
 	actions = append(actions, p.char.Buff())
 
 	// Travel to boss position
-	actions = append(actions, action.BuildOnRuntime(func(data game.Data) []step.Step {
+	actions = append(actions, step.NewFixedStepsRunner(func(data game.Data) []step.Step {
 		return []step.Step{
 			step.MoveTo(safeDistanceFromPindleX, safeDistanceFromPindleY, true),
 		}

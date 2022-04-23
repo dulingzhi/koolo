@@ -5,12 +5,12 @@ import (
 	"github.com/hectorgimenez/koolo/api"
 	zapLogger "github.com/hectorgimenez/koolo/cmd/koolo/log"
 	koolo "github.com/hectorgimenez/koolo/internal"
-	"github.com/hectorgimenez/koolo/internal/action"
 	"github.com/hectorgimenez/koolo/internal/character"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/health"
 	"github.com/hectorgimenez/koolo/internal/run"
 	"github.com/hectorgimenez/koolo/internal/stats"
+	"github.com/hectorgimenez/koolo/internal/step/builder"
 	"github.com/hectorgimenez/koolo/internal/town"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -59,7 +59,7 @@ func main() {
 		logger.Fatal("Error creating character", zap.Error(err))
 	}
 
-	ab := action.NewBuilder(logger, sm, bm)
+	ab := builder.NewBuilder(logger, sm, bm)
 	bot := koolo.NewBot(logger, hm, ab)
 	supervisor := koolo.NewSupervisor(logger, bot)
 

@@ -1,13 +1,12 @@
 package character
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action"
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/config"
 	"github.com/hectorgimenez/koolo/internal/game"
 	"github.com/hectorgimenez/koolo/internal/helper"
 	"github.com/hectorgimenez/koolo/internal/hid"
 	"github.com/hectorgimenez/koolo/internal/pather"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"sort"
 	"strings"
 )
@@ -20,8 +19,8 @@ type Hammerdin struct {
 	BaseCharacter
 }
 
-func (s Hammerdin) Buff() *action.BasicAction {
-	return action.BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (s Hammerdin) Buff() *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		steps = append(steps, s.buffCTA()...)
 		steps = append(steps, step.SyncStep(func(data game.Data) error {
 			if config.Config.Bindings.Hammerdin.HolyShield != "" {
@@ -37,33 +36,33 @@ func (s Hammerdin) Buff() *action.BasicAction {
 	})
 }
 
-func (s Hammerdin) KillCountess() *action.BasicAction {
+func (s Hammerdin) KillCountess() *step.FixedStepsRunner {
 	return s.killMonster(game.Countess)
 }
 
-func (s Hammerdin) KillAndariel() *action.BasicAction {
+func (s Hammerdin) KillAndariel() *step.FixedStepsRunner {
 	return s.killMonster(game.Andariel)
 }
 
-func (s Hammerdin) KillSummoner() *action.BasicAction {
+func (s Hammerdin) KillSummoner() *step.FixedStepsRunner {
 	return s.killMonster(game.Summoner)
 }
 
-func (s Hammerdin) KillPindle() *action.BasicAction {
+func (s Hammerdin) KillPindle() *step.FixedStepsRunner {
 	return s.killMonster(game.Pindleskin)
 }
 
-func (s Hammerdin) KillMephisto() *action.BasicAction {
+func (s Hammerdin) KillMephisto() *step.FixedStepsRunner {
 	return s.killMonster(game.Mephisto)
 }
 
-func (s Hammerdin) KillNihlathak() *action.BasicAction {
+func (s Hammerdin) KillNihlathak() *step.FixedStepsRunner {
 	return s.killMonster(game.Nihlathak)
 }
 
-func (s Hammerdin) ClearAncientTunnels() *action.BasicAction {
+func (s Hammerdin) ClearAncientTunnels() *step.FixedStepsRunner {
 	// Let's focus only on elite packs
-	return action.BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		var eliteMonsters []game.Monster
 		for _, m := range data.Monsters {
 			if m.Type == game.MonsterTypeMinion || m.Type == game.MonsterTypeUnique || m.Type == game.MonsterTypeChampion {
@@ -92,11 +91,11 @@ func (s Hammerdin) ClearAncientTunnels() *action.BasicAction {
 			}
 		}
 		return
-	}, action.CanBeSkipped())
+	}, step.CanBeSkipped())
 }
 
-func (s Hammerdin) KillCouncil() *action.BasicAction {
-	return action.BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (s Hammerdin) KillCouncil() *step.RuntimeBuildingRunner {
+	return step.NewRuntimeBuildingRunner(func(data game.Data) (step.Step, error) {
 		// Exclude monsters that are not council members
 		var councilMembers []game.Monster
 		for _, m := range data.Monsters {
@@ -114,25 +113,29 @@ func (s Hammerdin) KillCouncil() *action.BasicAction {
 			return distanceI < distanceJ
 		})
 
-		for _, m := range councilMembers {
-			for i := 0; i < hammerdinMaxAttacksLoop; i++ {
-				steps = append(steps,
-					step.PrimaryAttack(
-						game.NPCID(m.Name),
-						8,
-						config.Config.Runtime.CastDuration,
-						step.FollowEnemy(3),
-						step.EnsureAura(config.Config.Bindings.Hammerdin.Concentration),
-					),
-				)
-			}
+		if len(councilMembers) > 0 {
+			m := councilMembers[0]
+			return step.PrimaryAttack(
+				game.NPCID(m.Name),
+				8,
+				config.Config.Runtime.CastDuration,
+				step.FollowEnemy(3),
+				step.EnsureAura(config.Config.Bindings.Hammerdin.Concentration),
+			), nil
 		}
-		return
-	}, action.CanBeSkipped())
+
+		return nil, step.ErrNoMoreSteps
+	})
 }
 
-func (s Hammerdin) killMonster(npc game.NPCID) *action.BasicAction {
-	return action.BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (s Hammerdin) ClearTrashInArea(distanceFromPlayer int) *step.RuntimeBuildingRunner {
+	return step.NewRuntimeBuildingRunner(func(data game.Data) (step.Step, error) {
+		return nil, nil
+	})
+}
+
+func (s Hammerdin) killMonster(npc game.NPCID) *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		helper.Sleep(100)
 		for i := 0; i < hammerdinMaxAttacksLoop; i++ {
 			steps = append(steps,
@@ -147,5 +150,5 @@ func (s Hammerdin) killMonster(npc game.NPCID) *action.BasicAction {
 		}
 
 		return
-	}, action.CanBeSkipped())
+	}, step.CanBeSkipped())
 }

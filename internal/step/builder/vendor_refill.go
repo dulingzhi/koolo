@@ -1,13 +1,13 @@
-package action
+package builder
 
 import (
-	"github.com/hectorgimenez/koolo/internal/action/step"
 	"github.com/hectorgimenez/koolo/internal/game"
+	"github.com/hectorgimenez/koolo/internal/step"
 	"github.com/hectorgimenez/koolo/internal/town"
 )
 
-func (b Builder) VendorRefill() *BasicAction {
-	return BuildOnRuntime(func(data game.Data) (steps []step.Step) {
+func (b Builder) VendorRefill() *step.FixedStepsRunner {
+	return step.NewFixedStepsRunner(func(data game.Data) (steps []step.Step) {
 		if b.shouldGoToVendor(data) {
 			steps = append(steps,
 				step.InteractNPC(town.GetTownByArea(data.Area).RefillNPC()),
@@ -22,7 +22,7 @@ func (b Builder) VendorRefill() *BasicAction {
 		}
 
 		return
-	}, Resettable(), CanBeSkipped())
+	}, step.Resettable(), step.CanBeSkipped())
 }
 
 func (b Builder) shouldGoToVendor(data game.Data) bool {
