@@ -13,7 +13,7 @@ const (
 )
 
 type Andariel struct {
-	baseRun
+	BaseRun
 }
 
 func (a Andariel) Name() string {

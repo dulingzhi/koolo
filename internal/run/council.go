@@ -8,7 +8,7 @@ import (
 )
 
 type Council struct {
-	baseRun
+	BaseRun
 }
 
 func (s Council) Name() string {

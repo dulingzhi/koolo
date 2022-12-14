@@ -9,7 +9,7 @@ import (
 )
 
 type Summoner struct {
-	baseRun
+	BaseRun
 }
 
 func (s Summoner) Name() string {

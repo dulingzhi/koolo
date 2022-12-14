@@ -13,7 +13,7 @@ const (
 )
 
 type Mephisto struct {
-	baseRun
+	BaseRun
 }
 
 func (m Mephisto) Name() string {

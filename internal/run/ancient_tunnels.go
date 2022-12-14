@@ -9,7 +9,7 @@ import (
 )
 
 type AncientTunnels struct {
-	baseRun
+	BaseRun
 }
 
 func (a AncientTunnels) Name() string {

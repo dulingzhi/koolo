@@ -19,7 +19,7 @@ const (
 
 type Pindleskin struct {
 	SkipOnImmunities []stat.Resist
-	baseRun
+	BaseRun
 }
 
 func (p Pindleskin) Name() string {

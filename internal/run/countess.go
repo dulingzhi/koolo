@@ -10,7 +10,7 @@ import (
 )
 
 type Countess struct {
-	baseRun
+	BaseRun
 }
 
 func (c Countess) Name() string {

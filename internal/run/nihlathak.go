@@ -13,7 +13,7 @@ import (
 )
 
 type Nihlathak struct {
-	baseRun
+	BaseRun
 }
 
 func (a Nihlathak) Name() string {
